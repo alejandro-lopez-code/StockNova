@@ -48,6 +48,8 @@
   <ItemGroup>
     <Compile Include="BLL\CategoriaBLL.cs" />
     <Compile Include="BLL\ProductoBLL.cs" />
+    <Compile Include="BLL\UsuarioBLL.cs" />
+    <Compile Include="Datos\Conexion.cs" />
     <Compile Include="Entities\Categoria.cs" />
     <Compile Include="Entities\Producto.cs" />
     <Compile Include="Form1.cs">

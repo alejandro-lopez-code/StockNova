@@ -22,20 +22,30 @@ namespace StockNova.UI
         private void FrmProductos_Load(object sender, EventArgs e)
         {
             CargarGrid();
-            BloquearCampos(true);
+
+            cboCategoria.DataSource = StockNova.BLL.CategoriaBLL.ObtenerCategorias();
+            cboCategoria.DataSource = StockNova.BLL.CategoriaBLL.ObtenerCategorias();
+            cboCategoria.DisplayMember = "Nombre"; 
+            cboCategoria.ValueMember = "Id";       
+            cboCategoria.SelectedIndex = -1; 
         }
 
         private void CargarGrid()
         {
             dataGridView1.DataSource = null;
             dataGridView1.DataSource = ProductoBLL.ObtenerProductos();
+
+            if (dataGridView1.Columns["Precio"] != null)
+            {
+                dataGridView1.Columns["Precio"].DefaultCellStyle.Format = "C$ #,##0.00";
+            }
         }
 
         private void BloquearCampos(bool bloquear)
         {
             txtCodigo.Enabled = !bloquear;
             txtNombre.Enabled = !bloquear;
-            txtCategoria.Enabled = !bloquear;
+            cboCategoria.Enabled = !bloquear;
             txtPrecio.Enabled = !bloquear;
             txtStock.Enabled = !bloquear;
 
@@ -48,7 +58,8 @@ namespace StockNova.UI
         {
             txtCodigo.Clear();
             txtNombre.Clear();
-            txtCategoria.Clear();
+            cboCategoria.SelectedIndex = -1;
+
             txtPrecio.Clear();
             txtStock.Clear();
         }
@@ -70,11 +81,25 @@ namespace StockNova.UI
                     return;
                 }
 
+                if (!decimal.TryParse(txtPrecio.Text.Trim(), out decimal precio))
+                {
+                    MessageBox.Show("El campo Precio no tiene un formato numérico válido.", "Error de formato", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    txtPrecio.Focus();
+                    return;
+                }
+
+                if (!int.TryParse(txtStock.Text.Trim(), out int stock))
+                {
+                    MessageBox.Show("El campo Stock debe ser un número entero válido.", "Error de formato", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    txtStock.Focus();
+                    return;
+                }
+
                 Producto nuevo = new Producto
                 {
                     Codigo = txtCodigo.Text.Trim(),
                     Nombre = txtNombre.Text.Trim(),
-                    Categoria = txtCategoria.Text.Trim(),
+                    Categoria = cboCategoria.Text,
                     Precio = decimal.Parse(txtPrecio.Text),
                     Stock = int.Parse(txtStock.Text)
                 };
@@ -94,16 +119,31 @@ namespace StockNova.UI
 
         private void btnEliminar_Click(object sender, EventArgs e)
         {
-            if (dataGridView1.SelectedRows.Count > 0)
+            if (dataGridView1.CurrentRow == null || dataGridView1.CurrentRow.Index < 0)
             {
-                int id = Convert.ToInt32(dataGridView1.CurrentRow.Cells["Id"].Value);
-                ProductoBLL.Eliminar(id);
-                CargarGrid();
-                MessageBox.Show("Producto eliminado de la lista.", "Información", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show("Por favor, seleccione un producto de la tabla para eliminar.", "Aviso", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
             }
-            else
+
+            DialogResult confirmacion = MessageBox.Show("¿Está seguro de que desea eliminar este producto?", "Confirmar eliminación", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+
+            if (confirmacion == DialogResult.Yes)
             {
-                MessageBox.Show("Seleccione una fila completa en la tabla para eliminar.", "Aviso", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                try
+                {
+                    int id = Convert.ToInt32(dataGridView1.CurrentRow.Cells["Id"].Value);
+
+                    ProductoBLL.Eliminar(id);
+
+                    CargarGrid();
+                    Limpiar();
+
+                    MessageBox.Show("Producto eliminado correctamente.", "Éxito", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Error al intentar eliminar el producto: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
             }
         }
 

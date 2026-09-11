@@ -27,7 +27,7 @@ namespace StockNova.UI
         private void CargarGrid()
         {
             dataGridView1.DataSource = null;
-            dataGridView1.DataSource = CategoriaBLL.ObtenerCategorias();
+            dataGridView1.DataSource = StockNova.BLL.CategoriaBLL.ObtenerCategorias();
         }
 
         private void btnGuardar_Click(object sender, EventArgs e)

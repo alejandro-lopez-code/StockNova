@@ -22,7 +22,10 @@ namespace StockNova.UI
             string usuario = txtUsuario.Text.Trim();
             string password = txtPassword.Text.Trim();
 
-            if (usuario == "admin" && password == "1234")
+            UsuarioBLL usuarioBLL = new UsuarioBLL();
+            bool esValido = usuarioBLL.ValidarLogin(usuario, password);
+
+            if (esValido)
             {
                 MessageBox.Show("¡Bienvenido al sistema StockNova!", "Acceso Concedido", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
@@ -33,6 +36,16 @@ namespace StockNova.UI
             else
             {
                 MessageBox.Show("Usuario o contraseña incorrectos.", "Error de Autenticación", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void btnSalir_Click(object sender, EventArgs e)
+        {
+            DialogResult respuesta = MessageBox.Show("¿Está seguro de que desea salir de la aplicación?", "Confirmar Salida", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+
+            if (respuesta == DialogResult.Yes)
+            {
+                Application.Exit();
             }
         }
     }
